@@ -1,14 +1,16 @@
-package com.nollpointer.prankme
+package com.nollpointer.prankme.view
 
 import android.support.v7.widget.CardView
 import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import com.nollpointer.prankme.Contact
+import com.nollpointer.prankme.R
 
-class ContactsAdapter(val contacts: List<Contact>, val listener: Listener = EmptyListener): RecyclerView.Adapter<ContactsAdapter.ViewHolder>() {
+class ContactsAdapter(var contacts: List<Contact>, val listener: Listener = EmptyListener): RecyclerView.Adapter<ContactsAdapter.ViewHolder>() {
+
     interface Listener {
         fun onClick(position: Int)
     }
@@ -21,7 +23,7 @@ class ContactsAdapter(val contacts: List<Contact>, val listener: Listener = Empt
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ContactsAdapter.ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val c: CardView = LayoutInflater.from(parent.context).inflate(R.layout.cardview_contact, parent, false) as CardView
         return ViewHolder(c)
     }
@@ -30,6 +32,9 @@ class ContactsAdapter(val contacts: List<Contact>, val listener: Listener = Empt
         val cardView = holder.customCardView
         var textView: TextView = cardView.findViewById(R.id.contact_name)
         textView.text = contacts.get(position).name
+
+        textView = cardView.findViewById(R.id.contact_last_message)
+        textView.text = contacts.get(position).email
 
         cardView.setOnClickListener{
             listener.onClick(position)
@@ -42,7 +47,7 @@ class ContactsAdapter(val contacts: List<Contact>, val listener: Listener = Empt
 
 }
 
-object EmptyListener: ContactsAdapter.Listener{
+object EmptyListener: ContactsAdapter.Listener {
     override fun onClick(position: Int) {
         Log.wtf("RECYCKERVIEW_CARD","Click performed")
     }

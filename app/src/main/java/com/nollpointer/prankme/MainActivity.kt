@@ -1,44 +1,68 @@
 package com.nollpointer.prankme
 
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.support.v7.widget.Toolbar
-import android.view.MenuItem
+import android.support.v7.app.AppCompatActivity
 import android.widget.FrameLayout
+import com.google.firebase.auth.FirebaseAuth
+import com.nollpointer.prankme.view.ChatView
+import com.nollpointer.prankme.view.ContactsAdapter
+import com.nollpointer.prankme.view.ContactsView
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), ContactsAdapter.Listener {
 
-    lateinit var frameLayout: FrameLayout
+    private lateinit var frameLayout: FrameLayout
+    private lateinit var firebaseAuth: FirebaseAuth
+
+    private lateinit var sounds: List<Sound>
+
+    private var chatView: ChatView? = null
+    private lateinit var contactsView: ContactsView
+
+    private var contacts: List<Contact> = createContactsList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val toolbar: Toolbar = findViewById(R.id.toolbar)
         frameLayout = findViewById(R.id.frame_layout)
-        setSupportActionBar(toolbar)
-        setStartFragment()
+        contactsView = ContactsView(this,createContactsList(),this)
+
+        sounds = listOf(Sound(R.raw.light,"Light"), Sound(R.raw.vk_click,"Click"),Sound(R.raw.martiangun,"Mart"),Sound(R.raw.light,"Light"),Sound(R.raw.vk_click,"Light"),Sound(R.raw.martiangun,"Light"))
+
+        frameLayout.addView(contactsView)
+
     }
 
-
-    private fun setStartFragment(){
-        val transaction = supportFragmentManager.beginTransaction()
-        transaction.add(R.id.frame_layout,ContactsFragment())
-        transaction.commit()
+    override fun onClick(position: Int) {
+        openChatView(contacts.get(position))
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        return when (item!!.itemId) {
-            android.R.id.home -> {
-                this.onBackPressed()
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
+    private fun openChatView(contact: Contact){
+        val array = Array<Message>(16){
+            val isMine = it % 2 ==0
+            Message(it % 4,System.currentTimeMillis(),isMine,false)
         }
+        chatView?.let {
+            chatView!!.contact = contact
+            chatView!!.messages = array
+            frameLayout.addView(chatView)
+        } ?: kotlin.run {
+            chatView = ChatView(this,contact,array,sounds)
+            frameLayout.addView(chatView)
+        }
+        //chatView.setOnTouchListener(chatView)
     }
+
+    private fun hideChatView(){
+        chatView!!.hideAndRemove()
+    }
+
+    private fun createContactsList() = listOf(Contact("Mike","mike@gmial.com"),Contact("Nike","nike@yandex.ru"),Contact("Sike","sike@gmial.com"),Contact("Like","like@gmial.com"),Contact("Wike","wike@gmial.com"))
 
     override fun onBackPressed() {
-        super.onBackPressed()
-        supportActionBar!!.setDisplayHomeAsUpEnabled(false)
-
+        when{
+            chatView?.isSoundPickerShown() ?: false -> chatView!!.hideSoundPicker()
+            chatView?.isShown ?: false-> hideChatView()
+            else -> super.onBackPressed()
+        }
     }
 }

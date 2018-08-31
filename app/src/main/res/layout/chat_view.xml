@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/chat_view_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background_image"
+    android:orientation="vertical">
+
+    <android.support.v7.widget.Toolbar
+        android:layout_width="match_parent"
+        android:layout_height="?android:actionBarSize"
+        android:id="@+id/chat_toolbar"
+        android:layout_gravity="top"
+        android:background="@color/colorPrimary"
+        app:title="@string/app_name"
+        app:subtitle="@string/app_name"
+        app:titleTextColor="@android:color/white"
+        android:theme="@style/ToolbarStyle"
+        app:navigationIcon="?attr/homeAsUpIndicator" />
+
+   <ListView
+       android:layout_width="match_parent"
+       android:layout_height="0dp"
+       android:layout_weight="3"
+       android:divider="#fff"
+       android:id="@+id/chat_list_view"/>
+
+    <LinearLayout
+        android:id="@+id/chat_message_send_sound"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:background="@android:color/white">
+
+        <ImageButton
+            android:id="@+id/chat_open_sound_picker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center|end"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            />
+
+        <HorizontalScrollView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:id="@+id/chat_message_container"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+
+                <TextView
+                    android:layout_marginStart="5dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Ваше сообщение"
+                    android:textAppearance="?android:textAppearanceMedium"
+                    android:gravity="center"
+                    android:id="@+id/chat_pick_sound"/>
+
+
+            </LinearLayout>
+
+
+        </HorizontalScrollView>
+
+
+
+        <ImageButton
+            android:id="@+id/chat_send_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ic_send"
+            android:layout_gravity="center|end"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+
+            />
+    </LinearLayout>
+
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:id="@+id/chat_sound_picker"
+        android:animateLayoutChanges="true"
+        android:layout_weight="0"/>
+
+</LinearLayout>
