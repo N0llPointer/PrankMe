@@ -11,7 +11,7 @@ import com.nollpointer.prankme.R
 import java.text.SimpleDateFormat
 
 
-class ChatAdapter(context: Context,val messages: Array<Message>): ArrayAdapter<Message>(context,-1,messages) {
+class ChatAdapter(context: Context,var messages: Array<Message>): ArrayAdapter<Message>(context,-1,messages) {
 
     val timeFormat = SimpleDateFormat("HH:mm")
     val sounds = mapOf(0 to "Dab",1 to "Fart",2 to "Bong",3 to "Click")
@@ -32,4 +32,7 @@ class ChatAdapter(context: Context,val messages: Array<Message>): ArrayAdapter<M
     }
 
 
+    override fun getCount(): Int {
+        return messages.size
+    }
 }

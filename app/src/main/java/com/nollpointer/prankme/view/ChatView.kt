@@ -12,14 +12,19 @@ import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.*
 import com.nollpointer.prankme.*
+import java.util.*
 
 class ChatView(context: Context,var contact: Contact, var messages: Array<Message>, val sounds: List<Sound>): LinearLayout(context), AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener{
 
     private val location: IntArray = IntArray(2)
     private val maxWidth: Int
 
+
     private val toolbar:Toolbar
+
     private val messagesList: ListView
+    private lateinit var messagesAdapter: ChatAdapter
+
     private val textViewSoundPick: TextView
     //private val adapter: ChatAdapter
     private val soundPicker: ListView
@@ -42,6 +47,13 @@ class ChatView(context: Context,var contact: Contact, var messages: Array<Messag
         openSoundPicker = findViewById(R.id.chat_open_sound_picker)
         sendMessage = findViewById(R.id.chat_send_message)
 
+        soundPicker = findViewById(R.id.chat_sound_picker)
+
+        textViewSoundPick = findViewById(R.id.chat_pick_sound)
+
+
+        soundMessageContainer = findViewById(R.id.chat_message_container)
+
         openSoundPicker.setBackgroundResource(R.drawable.ic_expand_more)
 
         openSoundPicker.setOnClickListener {
@@ -55,10 +67,44 @@ class ChatView(context: Context,var contact: Contact, var messages: Array<Messag
             }
 
         }
+        //sendMessage.isEnabled = false
+        sendMessage.setOnClickListener {
+            val size = messages.size
+            val newMessages = Array<Message>(messages.size + size){
 
-        soundPicker = findViewById(R.id.chat_sound_picker)
+                messages[it % size]
+            }
+            //System.arraycopy(messages, 0, newMessages, 0, size)
+            for((index,element) in soundsToSend.withIndex()){
+                newMessages[size + index] = Message(element.id,System.currentTimeMillis(),true,false)
+                soundMessageContainer.removeView(element)
+                //messagesAdapter.add(newMessages[size + index])
+            }
 
-        soundMessageContainer = findViewById(R.id.chat_message_container)
+
+            messagesAdapter.messages = newMessages
+            messagesAdapter.notifyDataSetChanged()
+
+            messages = newMessages
+        }
+
+        soundMessageContainer.setOnHierarchyChangeListener(object: ViewGroup.OnHierarchyChangeListener{
+            override fun onChildViewRemoved(parent: View?, child: View?) {
+                val view = child as SoundMessageView
+                soundsToSend.remove(view)
+                if(soundsToSend.size == 0) {
+                    textViewSoundPick.text = "Ваше сообщение"
+                    //sendMessage.isEnabled = false
+                }
+            }
+
+            override fun onChildViewAdded(parent: View?, child: View?) {
+                textViewSoundPick.text = ""
+                //sendMessage.isEnabled = true
+            }
+        })
+
+
 
         toolbar.setNavigationOnClickListener {
             hideAndRemove()
@@ -66,7 +112,7 @@ class ChatView(context: Context,var contact: Contact, var messages: Array<Messag
 
         //toolbar.setLogo(R.mipmap.ic_launcher_round)
 
-        textViewSoundPick = findViewById(R.id.chat_pick_sound)
+
 
 
 
@@ -77,11 +123,18 @@ class ChatView(context: Context,var contact: Contact, var messages: Array<Messag
 
     }
 
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+
+    }
+
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
 
+        messagesAdapter = ChatAdapter(context,messages)
 
-        messagesList.adapter = ChatAdapter(context,messages)
+        messagesList.adapter = messagesAdapter
         toolbar.title = contact.name
         toolbar.subtitle = contact.email
 
@@ -111,32 +164,44 @@ class ChatView(context: Context,var contact: Contact, var messages: Array<Messag
 
     fun showSoundPicker(){
         isSoundPickerShown = true
-        val viewWrapper = PickSoundWrapper(soundPicker)
-        val animator= ObjectAnimator.ofFloat(viewWrapper,"weight",0f,2f)
-        animator.duration = 150
-        animator.start()
+
+        val height = messagesList.height.times(2).div(5)
+
+//        val viewWrapper = PickSoundWrapper(soundPicker)
+//        val animator= ObjectAnimator.ofFloat(viewWrapper,"weight",0f,2f)
+//        animator.duration = 150
+//        animator.start()
+        //soundPicker.height
+        val params = soundPicker.layoutParams as LayoutParams
+        params.height = height
+        soundPicker.layoutParams = params
     }
 
     fun hideSoundPicker(){
         isSoundPickerShown = false
-        val viewWrapper = PickSoundWrapper(soundPicker)
-        val animator= ObjectAnimator.ofFloat(viewWrapper,"weight",2f,0f)
-        animator.duration = 150
-        animator.addListener(object: Animator.AnimatorListener{
-            override fun onAnimationRepeat(animation: Animator?) {
-            }
 
-            override fun onAnimationEnd(animation: Animator?) {
-                //initSoundPicker()
-            }
+        val params = soundPicker.layoutParams as LayoutParams
+        params.height = 0
+        soundPicker.layoutParams = params
 
-            override fun onAnimationCancel(animation: Animator?) {
-            }
-
-            override fun onAnimationStart(animation: Animator?) {
-            }
-        })
-        animator.start()
+//        val viewWrapper = PickSoundWrapper(soundPicker)
+//        val animator= ObjectAnimator.ofFloat(viewWrapper,"weight",2f,0f)
+//        animator.duration = 150
+//        animator.addListener(object: Animator.AnimatorListener{
+//            override fun onAnimationRepeat(animation: Animator?) {
+//            }
+//
+//            override fun onAnimationEnd(animation: Animator?) {
+//                //initSoundPicker()
+//            }
+//
+//            override fun onAnimationCancel(animation: Animator?) {
+//            }
+//
+//            override fun onAnimationStart(animation: Animator?) {
+//            }
+//        })
+//        animator.start()
     }
 
     fun initSoundPicker(){

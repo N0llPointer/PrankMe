@@ -33,11 +33,16 @@ class MainActivity : AppCompatActivity(), ContactsAdapter.Listener {
     }
 
     override fun onClick(position: Int) {
-        openChatView(contacts.get(position))
+        chatView?.let {
+            if(!chatView!!.isShown)
+                openChatView(contacts.get(position))
+        } ?: kotlin.run {
+            openChatView(contacts.get(position))
+        }
     }
 
     private fun openChatView(contact: Contact){
-        val array = Array<Message>(16){
+        val array = Array(16){
             val isMine = it % 2 ==0
             Message(it % 4,System.currentTimeMillis(),isMine,false)
         }
